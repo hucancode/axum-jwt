@@ -28,16 +28,21 @@ password: password123
 ```
 Register new user with
 ```bash
-curl -X POST "http://0.0.0.0:8000/api/register" -d "{\"email\":\"admin@admin.com\",\"name\":\"Admin\",\"password\":\"123456\"}" -H 'Content-Type: application/json'
+curl -X POST "http://0.0.0.0:8000/api/register" \
+  -d "{\"email\":\"admin@admin.com\",\"name\":\"Admin\",\"password\":\"123456\"}" \
+  -H 'Content-Type: application/json'
 ```
 Login with
 ```bash
-curl -X POST "http://0.0.0.0:8000/api/login" -d "{\"email\":\"admin@admin.com\",\"password\":\"123456\"}" -H 'Content-Type: application/json'
+curl -X POST "http://0.0.0.0:8000/api/login" \
+  -d "{\"email\":\"admin@admin.com\",\"password\":\"123456\"}" \
+  -H 'Content-Type: application/json'
 ```
 Access protected resource (for example user profile) with
 The token after `Bearer` is the result of the previous `login` command
 ```bash
-curl "http://0.0.0.0:8000/api/profile" -H 'Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJiZWZjM2NiNC00MTVjLTRmNjUtYTRhOS0zNzM4MDFiMzNiZTciLCJpYXQiOjE2ODI2Njg0MDMsImV4cCI6MTY4MjY3MjAwM30.xH2D5vRXAHFe17fRnDWJD4vGAm8IWAMNi-1bHCVtzRc'
+curl "http://0.0.0.0:8000/api/profile" \
+  -H 'Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJiZWZjM2NiNC00MTVjLTRmNjUtYTRhOS0zNzM4MDFiMzNiZTciLCJpYXQiOjE2ODI2Njg0MDMsImV4cCI6MTY4MjY3MjAwM30.xH2D5vRXAHFe17fRnDWJD4vGAm8IWAMNi-1bHCVtzRc'
 ```
 When you are done, shutdown postgres instance with
 ```bash
