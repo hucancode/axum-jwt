@@ -7,18 +7,20 @@ use axum::{
 };
 use chrono::{Duration, Utc};
 use jsonwebtoken::{encode, EncodingKey, Header};
-use serde_json::{json, Value};
 use std::sync::Arc;
 
 use crate::{
-    models::{dto::LoginInfo, TokenClaim, User},
+    models::{
+        dto::{LoginInfo, Message},
+        TokenClaim, User,
+    },
     AppState,
 };
 
 pub async fn login_handler(
     State(state): State<Arc<AppState>>,
     Json(body): Json<LoginInfo>,
-) -> Result<impl IntoResponse, (StatusCode, Json<Value>)> {
+) -> Result<impl IntoResponse, (StatusCode, Json<Message>)> {
     let user = sqlx::query_as!(
         User,
         "SELECT * FROM users WHERE email = $1",
@@ -29,9 +31,9 @@ pub async fn login_handler(
     .map_err(|e| {
         (
             StatusCode::INTERNAL_SERVER_ERROR,
-            Json(json!({
-                "message": format!("Database error: {}", e),
-            })),
+            Json(Message {
+                message: format!("Database error: {}", e),
+            }),
         )
     })?;
     PasswordHash::new(&user.password)
@@ -39,9 +41,7 @@ pub async fn login_handler(
         .map_err(|_| {
             (
                 StatusCode::BAD_REQUEST,
-                Json(json!({
-                    "message": "Invalid password"
-                })),
+                Json(Message::new("Invalid password")),
             )
         })?;
     let now = Utc::now();
@@ -60,10 +60,8 @@ pub async fn login_handler(
     .map_err(|_| {
         (
             StatusCode::INTERNAL_SERVER_ERROR,
-            Json(json!({
-                "message": "Error encoding JWT"
-            })),
+            Json(Message::new("Error encoding JWT")),
         )
     })
-    .map(|token| Response::new(json!({ "token": token }).to_string()))
+    .map(|token| Response::new(format!("{{\"token\": \"{token}\" }}")))
 }

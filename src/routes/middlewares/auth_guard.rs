@@ -9,18 +9,17 @@ use axum::{
 };
 
 use jsonwebtoken::{decode, DecodingKey, Validation};
-use serde_json::{json, Value};
 
 use crate::{
     app_state::AppState,
-    models::{TokenClaim, User},
+    models::{dto::Message, TokenClaim, User},
 };
 
 pub async fn auth_guard<B>(
     State(data): State<Arc<AppState>>,
     mut req: Request<B>,
     next: Next<B>,
-) -> Result<impl IntoResponse, (StatusCode, Json<Value>)> {
+) -> Result<impl IntoResponse, (StatusCode, Json<Message>)> {
     let token = req
         .headers()
         .get(header::AUTHORIZATION)
@@ -28,9 +27,7 @@ pub async fn auth_guard<B>(
         .and_then(|header| header.strip_prefix("Bearer "))
         .ok_or((
             StatusCode::UNAUTHORIZED,
-            Json(json!({
-                "message": "You are not logged in, please provide token",
-            })),
+            Json(Message::new("You are not logged in, please provide token")),
         ))?;
     let token = decode::<TokenClaim>(
         token,
@@ -40,17 +37,13 @@ pub async fn auth_guard<B>(
     .map_err(|_| {
         (
             StatusCode::UNAUTHORIZED,
-            Json(json!({
-                "message": "Invalid token",
-            })),
+            Json(Message::new("Invalid token")),
         )
     })?;
     let user_id = uuid::Uuid::parse_str(&token.claims.sub).map_err(|_| {
         (
             StatusCode::UNAUTHORIZED,
-            Json(json!({
-                "message": "Invalid token",
-            })),
+            Json(Message::new("Invalid token")),
         )
     })?;
     let user = sqlx::query_as!(User, "SELECT * FROM users WHERE id = $1", user_id)
@@ -59,9 +52,9 @@ pub async fn auth_guard<B>(
         .map_err(|e| {
             (
                 StatusCode::INTERNAL_SERVER_ERROR,
-                Json(json!({
-                    "message": format!("Error fetching user from database: {}", e),
-                })),
+                Json(Message {
+                    message: format!("Error fetching user from database: {}", e),
+                }),
             )
         })?;
     req.extensions_mut().insert(user);
