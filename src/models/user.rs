@@ -17,4 +17,3 @@ pub struct User {
     #[serde(rename = "updatedAt")]
     pub updated_at: Option<DateTime<Utc>>,
 }
-

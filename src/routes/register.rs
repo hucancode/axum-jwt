@@ -1,21 +1,17 @@
 use std::sync::Arc;
 
 use argon2::{
-    password_hash::{
-        SaltString,
-        rand_core::OsRng,
-    }, Argon2, PasswordHasher
+    password_hash::{rand_core::OsRng, SaltString},
+    Argon2, PasswordHasher,
 };
-use axum::{
-    extract::State,
-    http::{StatusCode},
-    response::IntoResponse,
-    Json,
-};
+use axum::{extract::State, http::StatusCode, response::IntoResponse, Json};
 use serde_json::{json, Value};
 
 use crate::{
-    models::{dto::{RegisterInfo, Profile}, User},
+    models::{
+        dto::{Profile, RegisterInfo},
+        User,
+    },
     AppState,
 };
 

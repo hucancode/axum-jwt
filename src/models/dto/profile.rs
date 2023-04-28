@@ -1,6 +1,6 @@
+use crate::models::User;
 use chrono::prelude::*;
 use serde::Serialize;
-use crate::models::user::User;
 
 #[allow(non_snake_case)]
 #[derive(Debug, Serialize)]
