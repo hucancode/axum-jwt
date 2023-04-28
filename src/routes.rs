@@ -35,7 +35,6 @@ pub async fn make_app() -> Router {
         .await
     {
         Ok(pool) => {
-            println!("✅Connection to the database is successful!");
             pool
         }
         Err(err) => {
@@ -53,6 +52,8 @@ pub async fn make_app() -> Router {
         .allow_credentials(true)
         .allow_headers([AUTHORIZATION, ACCEPT, CONTENT_TYPE]);
     let app = Router::new()
+        .route("/", get(health_checker_handler))
+        .route("/api", get(health_checker_handler))
         .route("/api/health", get(health_checker_handler))
         .route("/api/register", post(register_user_handler))
         .route("/api/login", post(login_handler))
