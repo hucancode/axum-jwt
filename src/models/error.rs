@@ -26,6 +26,12 @@ impl IntoResponse for Error {
     }
 }
 
+impl From<(StatusCode, &str)> for Error {
+    fn from((code, msg): (StatusCode, &str)) -> Self {
+        Self::new(code, msg)
+    }
+}
+
 impl From<surrealdb::Error> for Error {
     fn from(error: surrealdb::Error) -> Self {
         Self::new(StatusCode::INTERNAL_SERVER_ERROR, &error.to_string())

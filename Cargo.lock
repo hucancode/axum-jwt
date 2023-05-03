@@ -212,7 +212,6 @@ dependencies = [
  "jsonwebtoken",
  "serde",
  "surrealdb",
- "time 0.3.20",
  "tokio",
  "tower-http",
 ]

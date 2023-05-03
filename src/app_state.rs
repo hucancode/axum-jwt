@@ -1,9 +1,8 @@
 use crate::config::Config;
 use surrealdb::engine::remote::ws::Client;
 use surrealdb::Surreal;
-type Db = Surreal<Client>;
 
 pub struct AppState {
-    pub db: Db,
+    pub db: Surreal<Client>,
     pub config: Config,
 }

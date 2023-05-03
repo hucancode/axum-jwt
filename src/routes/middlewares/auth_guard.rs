@@ -24,7 +24,7 @@ pub async fn auth_guard<B>(
         .get(header::AUTHORIZATION)
         .and_then(|header| header.to_str().ok())
         .and_then(|header| header.strip_prefix("Bearer "))
-        .ok_or(Error::new(
+        .ok_or((
             StatusCode::UNAUTHORIZED,
             "You are not logged in, please provide token",
         ))?;
@@ -34,9 +34,9 @@ pub async fn auth_guard<B>(
         &Validation::default(),
     )?;
     let user: Option<User> = state.db.select(("user", token.claims.sub)).await?;
-    let user = user.ok_or(Error::new(
+    let user = user.ok_or((
         StatusCode::UNAUTHORIZED,
-        "You are not logged in, please provide token",
+        "No user match this token",
     ))?;
     req.extensions_mut().insert(user);
     Ok(next.run(req).await)

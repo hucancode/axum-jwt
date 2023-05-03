@@ -17,9 +17,9 @@ pub async fn login_handler(
         .db
         .select(("user", body.email.to_ascii_lowercase()))
         .await?;
-    let user = user.ok_or(Error::new(StatusCode::BAD_REQUEST, "User does not exist"))?;
-    PasswordHash::new(&user.password)
-        .and_then(|hash| Argon2::default().verify_password(body.password.as_bytes(), &hash))?;
+    let user = user.ok_or((StatusCode::BAD_REQUEST, "User does not exist"))?;
+    let hash = PasswordHash::new(&user.password)?;
+    Argon2::default().verify_password(body.password.as_bytes(), &hash)?;
     let now = Utc::now();
     let iat = now.timestamp() as usize;
     let exp = (now + Duration::minutes(60)).timestamp() as usize;

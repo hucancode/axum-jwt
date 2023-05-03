@@ -21,8 +21,8 @@ pub async fn register_user_handler(
 ) -> Result<impl IntoResponse, Error> {
     let salt = SaltString::generate(&mut OsRng);
     let hashed_password = Argon2::default()
-        .hash_password(body.password.as_bytes(), &salt)
-        .map(|hash| hash.to_string())?;
+        .hash_password(body.password.as_bytes(), &salt)?
+        .to_string();
     let data = User {
         name: body.name,
         email: body.email.to_ascii_lowercase(),
