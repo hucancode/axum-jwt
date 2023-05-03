@@ -13,7 +13,10 @@ pub async fn login_handler(
     State(state): State<Arc<AppState>>,
     Json(body): Json<LoginInfo>,
 ) -> Result<impl IntoResponse, Error> {
-    let user: Option<User> = state.db.select(("user", body.email)).await?;
+    let user: Option<User> = state
+        .db
+        .select(("user", body.email.to_ascii_lowercase()))
+        .await?;
     let user = user.ok_or(Error::new(StatusCode::BAD_REQUEST, "User does not exist"))?;
     PasswordHash::new(&user.password)
         .and_then(|hash| Argon2::default().verify_password(body.password.as_bytes(), &hash))?;

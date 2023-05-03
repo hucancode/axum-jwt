@@ -25,12 +25,16 @@ pub async fn register_user_handler(
         .map(|hash| hash.to_string())?;
     let data = User {
         name: body.name,
-        email: body.email,
+        email: body.email.to_ascii_lowercase(),
         created_at: Utc::now(),
         updated_at: Utc::now(),
         password: hashed_password,
         ..Default::default()
     };
-    let user: User = state.db.create(("user", &data.email)).content(data).await?;
+    let user: User = state
+        .db
+        .create(("user", &data.email.to_ascii_lowercase()))
+        .content(data)
+        .await?;
     Ok(Json(Profile::from_user(&user)))
 }
