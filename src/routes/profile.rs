@@ -1,12 +1,9 @@
-use axum::{http::StatusCode, response::IntoResponse, Extension, Json};
+use axum::{response::IntoResponse, Extension, Json};
 
-use crate::models::{
-    dto::{Message, Profile},
-    User,
-};
+use crate::models::{dto::Profile, Error, User};
 
 pub async fn get_profile_handler(
     Extension(user): Extension<User>,
-) -> Result<impl IntoResponse, (StatusCode, Json<Message>)> {
+) -> Result<impl IntoResponse, Error> {
     Ok(Json(Profile::from_user(&user)))
 }

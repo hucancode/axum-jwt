@@ -20,30 +20,31 @@ use axum::{
     routing::{get, post},
     Router,
 };
-use sqlx::postgres::PgPoolOptions;
 use std::sync::Arc;
+use surrealdb::engine::remote::ws::Ws;
+use surrealdb::opt::auth::Root;
+use surrealdb::Surreal;
 use tower_http::cors::CorsLayer;
 
-pub async fn make_app() -> Router {
+pub async fn make_app() -> Result<Router, Box<dyn std::error::Error>> {
     let config = Config::init();
-    let pool = PgPoolOptions::new()
-        .max_connections(10)
-        .connect(&config.database_url)
-        .await
-        .unwrap_or_else(|e| {
-            println!("🔥 Failed to connect to the database: {:?}", e);
-            std::process::exit(1);
-        });
-    let state = Arc::new(AppState {
-        db: pool,
-        env: config,
-    });
+    let db = Surreal::new::<Ws>(config.db_url.clone()).await?;
+
+    db.signin(Root {
+        username: &config.db_user,
+        password: &config.db_password,
+    })
+    .await?;
+    db.use_ns(&config.db_namespace)
+        .use_db(&config.db_name)
+        .await?;
+    let state = Arc::new(AppState { db, config });
     let cors = CorsLayer::new()
         .allow_origin("http://localhost:3000".parse::<HeaderValue>().unwrap())
         .allow_methods([Method::GET, Method::POST, Method::PATCH, Method::DELETE])
         .allow_credentials(true)
         .allow_headers([AUTHORIZATION, ACCEPT, CONTENT_TYPE]);
-    Router::new()
+    let ret = Router::new()
         .route("/", get(health_checker_handler))
         .route("/api", get(health_checker_handler))
         .route("/api/health", get(health_checker_handler))
@@ -55,5 +56,7 @@ pub async fn make_app() -> Router {
                 .route_layer(middleware::from_fn_with_state(state.clone(), auth_guard)),
         )
         .with_state(state)
-        .layer(cors)
+        .layer(cors);
+
+    Ok(ret)
 }

@@ -12,8 +12,7 @@ chrono = { version = "0.4.24", features = ["serde"] }
 dotenv = "0.15.0"
 jsonwebtoken = "8.3.0"
 serde = { version = "1.0.160", features = ["derive"] }
-sqlx = { version = "0.6.3", features = ["runtime-async-std-native-tls", "postgres", "chrono", "uuid"] }
+surrealdb = "1.0.0-beta.9"
 time = "0.3.20"
 tokio = { version = "1.28.0", features = ["full"] }
 tower-http = { version = "0.4.0", features = ["cors"] }
-uuid = { version = "1.3.1", features = ["serde", "v4"] }

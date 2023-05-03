@@ -1,8 +1,9 @@
 use crate::config::Config;
-use sqlx::Pool;
-use sqlx::Postgres;
+use surrealdb::engine::remote::ws::Client;
+use surrealdb::Surreal;
+type Db = Surreal<Client>;
 
 pub struct AppState {
-    pub db: Pool<Postgres>,
-    pub env: Config,
+    pub db: Db,
+    pub config: Config,
 }
