@@ -14,8 +14,8 @@ pub struct Profile {
     pub updated_at: DateTime<Utc>,
 }
 
-impl Profile {
-    pub fn from_user(user: &User) -> Self {
+impl From<User> for Profile {
+    fn from(user: User) -> Self {
         Self {
             email: user.email.to_owned(),
             name: user.name.to_owned(),

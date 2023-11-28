@@ -29,8 +29,9 @@ use tower_http::cors::CorsLayer;
 
 pub async fn make_app() -> Result<Router, Box<dyn Error>> {
     let config = Config::init();
+    println!("connecting to surrealdb...");
     let db = Surreal::new::<Ws>(config.db_url.clone()).await?;
-
+    println!("logging in to surrealdb!");
     db.signin(Root {
         username: &config.db_user,
         password: &config.db_password,
@@ -39,6 +40,7 @@ pub async fn make_app() -> Result<Router, Box<dyn Error>> {
     db.use_ns(&config.db_namespace)
         .use_db(&config.db_name)
         .await?;
+    println!("connected to surrealdb!");
     let cors = HeaderValue::from_str(&config.cors_url)?;
     let state = Arc::new(AppState { db, config });
     let cors = CorsLayer::new()

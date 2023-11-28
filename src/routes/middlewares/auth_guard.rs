@@ -11,7 +11,7 @@ use jsonwebtoken::{decode, DecodingKey, Validation};
 
 use crate::{
     app_state::AppState,
-    models::{Error, TokenClaim},
+    models::{Error, TokenClaim, User},
 };
 
 pub async fn auth_guard(
@@ -33,7 +33,7 @@ pub async fn auth_guard(
         &DecodingKey::from_secret(state.config.jwt_secret.as_ref()),
         &Validation::default(),
     )?;
-    let user = state.db.select(("user", token.claims.sub)).await?;
+    let user: Option<User> = state.db.select(("user", token.claims.sub)).await?;
     let user = user.ok_or((StatusCode::UNAUTHORIZED, "No user match this token"))?;
     req.extensions_mut().insert(user);
     Ok(next.run(req).await)

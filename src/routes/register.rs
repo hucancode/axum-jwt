@@ -31,11 +31,11 @@ pub async fn register_user_handler(
         password: hashed_password,
         ..Default::default()
     };
-    let user = state
+    let user: Option<User> = state
         .db
         .create(("user", &data.email.to_ascii_lowercase()))
         .content(data)
         .await?;
     let user = user.ok_or((StatusCode::BAD_REQUEST, "Failed to create user"))?;
-    Ok(Json(Profile::from_user(&user)))
+    Ok(Json(Profile::from(user)))
 }
