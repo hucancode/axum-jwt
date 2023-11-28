@@ -1,9 +1,8 @@
 use std::sync::Arc;
 
 use axum::{
-    body::Body,
-    extract::State,
-    http::{header, Request, StatusCode},
+    extract::{Request, State},
+    http::{header, StatusCode},
     middleware::Next,
     response::IntoResponse,
 };
@@ -12,12 +11,12 @@ use jsonwebtoken::{decode, DecodingKey, Validation};
 
 use crate::{
     app_state::AppState,
-    models::{Error, TokenClaim, User},
+    models::{Error, TokenClaim},
 };
 
 pub async fn auth_guard(
     State(state): State<Arc<AppState>>,
-    mut req: Request<Body>,
+    mut req: Request,
     next: Next,
 ) -> Result<impl IntoResponse, Error> {
     let token = req
@@ -34,7 +33,7 @@ pub async fn auth_guard(
         &DecodingKey::from_secret(state.config.jwt_secret.as_ref()),
         &Validation::default(),
     )?;
-    let user: Option<User> = state.db.select(("user", token.claims.sub)).await?;
+    let user = state.db.select(("user", token.claims.sub)).await?;
     let user = user.ok_or((StatusCode::UNAUTHORIZED, "No user match this token"))?;
     req.extensions_mut().insert(user);
     Ok(next.run(req).await)
