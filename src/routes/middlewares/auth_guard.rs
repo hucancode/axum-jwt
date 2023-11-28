@@ -1,6 +1,7 @@
 use std::sync::Arc;
 
 use axum::{
+    body::Body,
     extract::State,
     http::{header, Request, StatusCode},
     middleware::Next,
@@ -14,10 +15,10 @@ use crate::{
     models::{Error, TokenClaim, User},
 };
 
-pub async fn auth_guard<B>(
+pub async fn auth_guard(
     State(state): State<Arc<AppState>>,
-    mut req: Request<B>,
-    next: Next<B>,
+    mut req: Request<Body>,
+    next: Next,
 ) -> Result<impl IntoResponse, Error> {
     let token = req
         .headers()
@@ -34,10 +35,7 @@ pub async fn auth_guard<B>(
         &Validation::default(),
     )?;
     let user: Option<User> = state.db.select(("user", token.claims.sub)).await?;
-    let user = user.ok_or((
-        StatusCode::UNAUTHORIZED,
-        "No user match this token",
-    ))?;
+    let user = user.ok_or((StatusCode::UNAUTHORIZED, "No user match this token"))?;
     req.extensions_mut().insert(user);
     Ok(next.run(req).await)
 }
