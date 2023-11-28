@@ -20,13 +20,14 @@ use axum::{
     routing::{get, post},
     Router,
 };
+use std::error::Error;
 use std::sync::Arc;
 use surrealdb::engine::remote::ws::Ws;
 use surrealdb::opt::auth::Root;
 use surrealdb::Surreal;
 use tower_http::cors::CorsLayer;
 
-pub async fn make_app() -> Result<Router, Box<dyn std::error::Error>> {
+pub async fn make_app() -> Result<Router, Box<dyn Error>> {
     let config = Config::init();
     let db = Surreal::new::<Ws>(config.db_url.clone()).await?;
 
@@ -38,9 +39,10 @@ pub async fn make_app() -> Result<Router, Box<dyn std::error::Error>> {
     db.use_ns(&config.db_namespace)
         .use_db(&config.db_name)
         .await?;
+    let cors = HeaderValue::from_str(&config.cors_url)?;
     let state = Arc::new(AppState { db, config });
     let cors = CorsLayer::new()
-        .allow_origin("http://localhost:3000".parse::<HeaderValue>().unwrap())
+        .allow_origin(cors)
         .allow_methods([Method::GET, Method::POST, Method::PATCH, Method::DELETE])
         .allow_credentials(true)
         .allow_headers([AUTHORIZATION, ACCEPT, CONTENT_TYPE]);

@@ -1,5 +1,8 @@
+use std::env::var;
+
 #[derive(Debug, Clone)]
 pub struct Config {
+    pub cors_url: String,
     pub db_user: String,
     pub db_password: String,
     pub db_url: String,
@@ -12,16 +15,20 @@ pub struct Config {
 
 impl Config {
     pub fn init() -> Config {
-        let db_user = std::env::var("DATABASE_USER").expect("DATABASE_USER must be set");
-        let db_password =
-            std::env::var("DATABASE_PASSWORD").expect("DATABASE_PASSWORD must be set");
-        let db_url = std::env::var("DATABASE_URL").expect("DATABASE_URL must be set");
-        let db_namespace = std::env::var("DATABASE_NAMESPACE").unwrap_or(String::from("app"));
-        let db_name = std::env::var("DATABASE_NAME").unwrap_or(String::from("master"));
-        let jwt_secret = std::env::var("JWT_SECRET").expect("JWT_SECRET must be set");
-        let jwt_expires_in = std::env::var("JWT_EXPIRED_IN").expect("JWT_EXPIRED_IN must be set");
-        let jwt_maxage = std::env::var("JWT_MAXAGE").expect("JWT_MAXAGE must be set");
+        let db_user = var("DATABASE_USER").expect("DATABASE_USER must be set");
+        let db_password = var("DATABASE_PASSWORD").expect("DATABASE_PASSWORD must be set");
+        let db_url = var("DATABASE_URL").expect("DATABASE_URL must be set");
+        let db_namespace = var("DATABASE_NAMESPACE").unwrap_or(String::from("app"));
+        let db_name = var("DATABASE_NAME").unwrap_or(String::from("master"));
+        let cors_url = var("ALLOW_ORIGIN").unwrap_or(String::from("http://localhost:3000"));
+        let jwt_secret = var("JWT_SECRET").expect("JWT_SECRET must be set");
+        let jwt_expires_in = var("JWT_EXPIRED_IN").expect("JWT_EXPIRED_IN must be set");
+        let jwt_maxage = var("JWT_MAXAGE")
+            .map(|age| age.parse::<i32>())
+            .expect("JWT_MAXAGE must be set")
+            .expect("JWT_MAXAGE must be a number");
         Config {
+            cors_url,
             db_user,
             db_password,
             db_url,
@@ -29,7 +36,7 @@ impl Config {
             db_name,
             jwt_secret,
             jwt_expires_in,
-            jwt_maxage: jwt_maxage.parse::<i32>().unwrap(),
+            jwt_maxage,
         }
     }
 }
