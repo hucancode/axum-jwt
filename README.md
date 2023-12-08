@@ -1,10 +1,10 @@
 # Hello Axum!
-This is an example web application build with `axum`
+This is an example web application build with `axum` and `surrealdb`
 # Run the app
-Rename `.env.example` to `.env`, default values work just fine by you can adjust the variables if needed.
+Rename `.env.example` to `.env`, default values work just fine but you can adjust the variables if needed.
 Then start `surrealdb` with
 ```bash
-docker compose up -d # to spin up a surrealdb instance
+docker compose up -d
 ```
 Start web server
 ```bash
@@ -24,11 +24,12 @@ curl -X POST 'http://0.0.0.0:8080/api/login' \
   -H 'Content-Type: application/json'
 ```
 Access protected resource (for example user profile) with
-The token after `Bearer` is the result of the previous `login` command
 ```bash
 curl 'http://0.0.0.0:8080/api/profile' \
   -H 'Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJiZWZjM2NiNC00MTVjLTRmNjUtYTRhOS0zNzM4MDFiMzNiZTciLCJpYXQiOjE2ODI2Njg0MDMsImV4cCI6MTY4MjY3MjAwM30.xH2D5vRXAHFe17fRnDWJD4vGAm8IWAMNi-1bHCVtzRc'
 ```
+_The token after `Bearer` is the result of the previous `login` command_
+
 When you are done, shutdown `surrealdb` instance with
 ```bash
 docker compose down
