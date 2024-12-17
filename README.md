@@ -4,11 +4,8 @@ This is an example web application build with `axum` and `surrealdb`
 Rename `.env.example` to `.env`, default values work just fine but you can adjust the variables if needed.
 Then start `surrealdb` with
 ```bash
+# cp .env.example .env
 docker compose up -d
-```
-Start web server
-```bash
-cargo run
 ```
 # Use the app
 Register new user with
@@ -34,4 +31,3 @@ When you are done, shutdown `surrealdb` instance with
 ```bash
 docker compose down
 ```
-
