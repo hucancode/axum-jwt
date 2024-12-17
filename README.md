@@ -27,7 +27,7 @@ curl 'http://0.0.0.0:8080/api/profile' \
 ```
 _The token after `Bearer` is the result of the previous `login` command_
 
-When you are done, shutdown `surrealdb` instance with
+When you are done, shutdown server instance with
 ```bash
 docker compose down
 ```
