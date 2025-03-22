@@ -1,3 +1,5 @@
+mod bus_route;
+mod bus_stop;
 mod health;
 mod login;
 mod middlewares;
@@ -29,7 +31,7 @@ use tower_http::cors::CorsLayer;
 
 pub async fn make_app() -> Result<Router, Box<dyn Error>> {
     let config = Config::init();
-    println!("connecting to surrealdb...");
+    println!("connecting to surrealdb... at {}", config.db_url);
     let db = Surreal::new::<Ws>(config.db_url.clone()).await?;
     println!("logging in to surrealdb!");
     db.signin(Root {
@@ -57,6 +59,20 @@ pub async fn make_app() -> Result<Router, Box<dyn Error>> {
         .route(
             "/api/profile",
             get(get_profile_handler)
+                .route_layer(middleware::from_fn_with_state(state.clone(), auth_guard)),
+        )
+        .route("/api/bus-stops", get(bus_stop::get_all_handler))
+        .route("/api/bus-stops/{id}", get(bus_stop::get_handler))
+        .route(
+            "/api/bus-stops",
+            post(bus_stop::create_handler)
+                .route_layer(middleware::from_fn_with_state(state.clone(), auth_guard)),
+        )
+        .route("/api/bus-routes", get(bus_route::get_all_handler))
+        .route("/api/bus-routes/{id}", get(bus_route::get_handler))
+        .route(
+            "/api/bus-routes",
+            post(bus_route::create_handler)
                 .route_layer(middleware::from_fn_with_state(state.clone(), auth_guard)),
         )
         .with_state(state)

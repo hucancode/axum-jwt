@@ -1,7 +1,10 @@
+pub mod bus_info;
 pub mod login_info;
 pub mod message;
 pub mod profile;
 pub mod register_info;
+pub use bus_info::BusRouteCreateInfo;
+pub use bus_info::BusStopCreateInfo;
 pub use login_info::LoginInfo;
 pub use message::Message;
 pub use profile::Profile;

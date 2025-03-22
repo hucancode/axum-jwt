@@ -2,7 +2,7 @@ services:
   surrealdb:
     image: surrealdb/surrealdb:latest
     container_name: surrealdb
-    command: start --user root --pass root file:/data/database.db
+    command: start --user root --pass root surrealkv:/data/database.db
     ports:
       - 8000:8000
     volumes:
