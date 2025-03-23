@@ -71,6 +71,10 @@ pub async fn make_app() -> Result<Router, Box<dyn Error>> {
         .route("/api/bus-routes", get(bus_route::get_all_handler))
         .route("/api/bus-routes/{id}", get(bus_route::get_handler))
         .route(
+            "/api/bus-routes/{id}/add-stop/{stop_id}",
+            post(bus_route::add_stop_handler),
+        )
+        .route(
             "/api/bus-routes",
             post(bus_route::create_handler)
                 .route_layer(middleware::from_fn_with_state(state.clone(), auth_guard)),

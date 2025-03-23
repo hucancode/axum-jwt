@@ -7,22 +7,35 @@ use axum::{
     response::IntoResponse,
     Json,
 };
-use chrono::Utc;
 use std::sync::Arc;
-use surrealdb::RecordIdKey;
+use surrealdb::RecordId;
 
 pub async fn get_all_handler(
     State(state): State<Arc<AppState>>,
 ) -> Result<impl IntoResponse, Error> {
-    let stops: Vec<BusStop> = state.db.select("bus_stop").await?;
+    let query = format!(
+        "SELECT meta::id(id) AS id,
+            name,
+            created_at,
+            updated_at
+        FROM bus_stop;"
+    );
+    let stops: Vec<BusStop> = state.db.query(query).await?.take(0)?;
     Ok(Json(stops))
 }
 
 pub async fn get_handler(
-    Path(id): Path<RecordIdKey>,
+    Path(id): Path<String>,
     State(state): State<Arc<AppState>>,
 ) -> Result<impl IntoResponse, Error> {
-    let stop: Option<BusStop> = state.db.select(("bus_stop", id)).await?;
+    let query = format!(
+        "SELECT meta::id(id) AS id,
+            name,
+            created_at,
+            updated_at
+        FROM ONLY bus_stop:{id};"
+    );
+    let stop: Option<BusStop> = state.db.query(query).await?.take(0)?;
     Ok(Json(stop))
 }
 
@@ -30,11 +43,10 @@ pub async fn create_handler(
     State(state): State<Arc<AppState>>,
     Json(body): Json<BusStopCreateInfo>,
 ) -> Result<impl IntoResponse, Error> {
-    let bus_stop = BusStop {
-        name: body.name,
-        created_at: Utc::now(),
-        updated_at: Utc::now(),
-    };
-    let result: Option<BusStop> = state.db.create("bus_stop").content(bus_stop).await?;
+    let query = format!(
+        "CREATE ONLY bus_stop SET name = '{}', created_at = time::now(), updated_at = time::now()",
+        body.name
+    );
+    let result: Option<RecordId> = state.db.query(query).await?.take(0)?;
     Ok(Json(result))
 }

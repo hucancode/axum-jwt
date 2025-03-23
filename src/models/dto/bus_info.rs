@@ -1,13 +1,24 @@
-use serde::Deserialize;
-use surrealdb::RecordIdKey;
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Deserialize)]
 pub struct BusRouteCreateInfo {
     pub name: String,
-    pub stops: Vec<RecordIdKey>,
+    pub stops: Vec<String>,
 }
 
 #[derive(Debug, Deserialize)]
 pub struct BusStopCreateInfo {
     pub name: String,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct StopRouteRelationInfo {
+    pub id: String,
+    pub order: u32,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct BusRouteAddStopsInfo {
+    pub id: String,
+    pub stop_ids: Vec<StopRouteRelationInfo>,
 }
