@@ -1,20 +1,27 @@
-create only bus_route:jo set name = "Soubu";
-create only bus_route:jk set name = "Keihin Tohoku";
-create only bus_stop:kaijin set name = "kaijin";
-create only bus_stop:funa set name = "Funabashi";
-create only bus_stop:ichi set name = "Ichikawa";
-create only bus_stop:shimbashi set name = "Shimbashi";
-create only bus_stop:tokyo set name = "Tokyo";
-relate bus_route:jo->contain->bus_stop:kaijin set index = 1;
-relate bus_route:jo->contain->bus_stop:funa set index = 2;
-relate bus_route:jo->contain->bus_stop:ichi set index = 3;
-relate bus_route:jo->contain->bus_stop:shimbashi set index = 5;
-relate bus_route:jo->contain->bus_stop:tokyo set index = 4;
-relate bus_route:jk->contain->bus_stop:shimbashi set index = 1;
-relate bus_route:jk->contain->bus_stop:tokyo set index = 2;
-update bus_route set updated_at='2025-03-22T15:30:14.182205620Z', created_at='2025-03-22T15:30:14.182205620Z' where updated_at=none;
-update bus_stop set updated_at='2025-03-22T15:30:14.182205620Z', created_at='2025-03-22T15:30:14.182205620Z' where updated_at=none;
+-- create route and its stops
+let $yt = CREATE ONLY bus_route SET name = 'Yamanote', created_at = time::now(), updated_at = time::now();
+let $shinjuku = CREATE ONLY bus_stop SET name = 'Shinjuku', created_at = time::now(), updated_at = time::now();
+let $shibuya = CREATE ONLY bus_stop SET name = 'Shibuya', created_at = time::now(), updated_at = time::now();
+let $harajuku = CREATE ONLY bus_stop SET name = 'Harajuku', created_at = time::now(), updated_at = time::now();
+let $otemachi = CREATE ONLY bus_stop SET name = 'Otemachi', created_at = time::now(), updated_at = time::now();
+let $tokyo = CREATE ONLY bus_stop SET name = 'Tokyo', created_at = time::now(), updated_at = time::now();
+let $shinagawa = CREATE ONLY bus_stop SET name = 'Shinagawa', created_at = time::now(), updated_at = time::now();
+RELATE $yt->contain->$shinjuku set index = 1;
+RELATE $yt->contain->$shibuya set index = 2;
+RELATE $yt->contain->$harajuku set index = 3;
+RELATE $yt->contain->$otemachi set index = 4;
+RELATE $yt->contain->$tokyo set index = 5;
+RELATE $yt->contain->$shinagawa set index = 6;
 
+let $jo = CREATE ONLY bus_route SET name = 'Soubu', created_at = time::now(), updated_at = time::now();
+let $chiba = CREATE ONLY bus_stop SET name = 'Chiba', created_at = time::now(), updated_at = time::now();
+let $funabashi = CREATE ONLY bus_stop SET name = 'Funabashi', created_at = time::now(), updated_at = time::now();
+RELATE $jo->contain->$chiba set index = 1;
+RELATE $jo->contain->$funabashi set index = 2;
+RELATE $jo->contain->$tokyo set index = 3;
+RELATE $jo->contain->$shinagawa set index = 4;
+
+-- select all route and its stops
 SELECT meta::id(id) AS id,
     name,
     created_at,
