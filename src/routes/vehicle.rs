@@ -47,9 +47,9 @@ pub async fn create_handler(
 ) -> Result<impl IntoResponse, Error> {
     let mut queries = vec![format!(
         "LET $vehicle = CREATE ONLY vehicle
-        SET plate_number = '{plate_number}',
-            created_at = time::now(),
-            updated_at = time::now()"
+            SET plate_number = '{plate_number}',
+                created_at = time::now(),
+                updated_at = time::now()"
         )];
     if let Some(route) = route {
         queries.push(format!("RELATE ONLY route:{route} ->contain $vehicle"));

@@ -20,6 +20,7 @@ pub struct TravelCard {
     pub updated_at: DateTime<Utc>,
 }
 
+#[derive(Debug, Default, Deserialize, Serialize, Clone)]
 pub struct PassCardRelation {
     pub id: Option<String>,
     pub route_id: String,

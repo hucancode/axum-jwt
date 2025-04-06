@@ -1,4 +1,5 @@
 pub mod bus_info;
+pub mod card_info;
 pub mod login_info;
 pub mod message;
 pub mod profile;
@@ -10,6 +11,9 @@ pub use bus_info::StopRouteRelationInfo;
 pub use bus_info::VehicleUpdateLocationInfo;
 pub use bus_info::BusRouteAddStopsInfo;
 pub use bus_info::BusRouteAddVehiclesInfo;
+pub use card_info::CardCreateInfo;
+pub use card_info::TravelCardRechargeInfo;
+pub use card_info::TravelPassCreateInfo;
 pub use login_info::LoginInfo;
 pub use message::Message;
 pub use profile::Profile;

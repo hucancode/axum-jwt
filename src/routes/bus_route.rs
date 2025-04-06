@@ -22,7 +22,10 @@ pub async fn get_all_handler(
             name,
             created_at,
             updated_at,
-            (SELECT meta::id(out.id) AS id, out.name AS name, index FROM ->contain) AS stops
+            (SELECT meta::id(out.id) AS id,
+                out.name AS name,
+                index
+            FROM ->contain) AS stops
         FROM bus_route;"
     );
     let routes: Vec<BusRoute> = state.db.query(query).await?.take(0)?;
@@ -38,7 +41,10 @@ pub async fn get_handler(
             name,
             created_at,
             updated_at,
-            (SELECT meta::id(out.id) AS id, out.name AS name, index FROM ->contain) AS stops
+            (SELECT meta::id(out.id) AS id,
+                out.name AS name,
+                index
+            FROM ->contain) AS stops
         FROM ONLY bus_route:{id};"
     );
     let route: Option<BusRouteWithStops> = state.db.query(query).await?.take(0)?;
@@ -50,12 +56,18 @@ pub async fn create_handler(
     Json(body): Json<BusRouteCreateInfo>,
 ) -> Result<impl IntoResponse, Error> {
     let create_query = format!(
-        "let $route = CREATE ONLY bus_route SET name = '{}', created_at = time::now(), updated_at = time::now()",
+        "let $route = CREATE ONLY bus_route SET name = '{}',
+            created_at = time::now(),
+            updated_at = time::now()",
         body.name
     );
     let relations: Vec<_> = iter::once(create_query)
         .chain(body.stops.iter().enumerate().map(|(i, name)| format!(
-            "RELATE ONLY $route ->contain-> (CREATE ONLY bus_stop SET name = '{name}', update_at = time::now(), created_at = time::now()) SET order = {i}"
+            "RELATE ONLY $route ->contain-> (CREATE ONLY bus_stop
+                SET name = '{name}',
+                    update_at = time::now(),
+                    created_at = time::now())
+            SET order = {i}"
         )))
         .collect();
     state.db.query(relations.join(";")).await?;
@@ -68,7 +80,9 @@ pub async fn add_stop_handler(
     Json(body): Json<BusRouteAddStopsInfo>,
 ) -> Result<impl IntoResponse, Error> {
     let queries: Vec<_> = body.stop_ids.into_iter()
-        .map(|StopRouteRelationInfo {id, order}| format!("RELATE bus_route:{route_id} ->contain bus_stop:{id} SET order = {order};"))
+        .map(|StopRouteRelationInfo {id, order}| format!(
+            "RELATE bus_route:{route_id} ->contain bus_stop:{id}
+            SET order = {order}"))
         .collect();
     state.db.query(queries.join(";")).await?;
     Ok(Json(route_id))
@@ -80,7 +94,8 @@ pub async fn add_vehicle_handler(
     Json(body): Json<BusRouteAddVehiclesInfo>,
 ) -> Result<impl IntoResponse, Error> {
     let queries: Vec<_> = body.vehicle_ids.into_iter()
-        .map(|VehicleRouteRelationInfo {id}| format!("RELATE bus_route:{route_id} ->contain vehicle:{id}"))
+        .map(|VehicleRouteRelationInfo {id}| format!(
+            "RELATE bus_route:{route_id} ->contain vehicle:{id}"))
         .collect();
     state.db.query(queries.join(";")).await?;
     Ok(Json(route_id))

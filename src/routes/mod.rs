@@ -1,6 +1,7 @@
 mod bus_route;
 mod bus_stop;
 mod vehicle;
+mod card;
 mod health;
 mod login;
 mod middlewares;
@@ -93,6 +94,30 @@ pub async fn make_app() -> Result<Router, Box<dyn Error>> {
         )
         .route("/api/vehicles/{id}/location",
             post(vehicle::update_location_handler)
+            //.route_layer(middleware::from_fn_with_state(state.clone(), auth_guard)),
+        )
+        .route("/api/cards", get(card::get_all_cards_handler))
+        .route("/api/cards/{id}", get(card::get_card_handler))
+        .route(
+            "/api/cards",
+            post(card::create_card_handler)
+            //.route_layer(middleware::from_fn_with_state(state.clone(), auth_guard)),
+        )
+        .route(
+            "/api/cards/{id}/recharge",
+            post(card::recharge_card_handler)
+            //.route_layer(middleware::from_fn_with_state(state.clone(), auth_guard)),
+        )
+        .route("/api/passes", get(card::get_all_passes_handler))
+        .route("/api/passes/{id}", get(card::get_pass_handler))
+        .route(
+            "/api/passes",
+            post(card::create_pass_handler)
+            //.route_layer(middleware::from_fn_with_state(state.clone(), auth_guard)),
+        )
+        .route(
+            "/api/cards/{id}/validate/{stop_id}",
+            post(card::validate_card_at_stop_handler)
             //.route_layer(middleware::from_fn_with_state(state.clone(), auth_guard)),
         )
         .with_state(state)

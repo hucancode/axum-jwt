@@ -1,4 +1,5 @@
 pub mod bus;
+pub mod card;
 pub mod dto;
 pub mod error;
 pub mod token_claim;

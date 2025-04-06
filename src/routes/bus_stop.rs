@@ -18,7 +18,7 @@ pub async fn get_all_handler(
             name,
             created_at,
             updated_at
-        FROM bus_stop;"
+        FROM bus_stop"
     );
     let stops: Vec<BusStop> = state.db.query(query).await?.take(0)?;
     Ok(Json(stops))
@@ -33,7 +33,7 @@ pub async fn get_handler(
             name,
             created_at,
             updated_at
-        FROM ONLY bus_stop:{id};"
+        FROM ONLY bus_stop:{id}"
     );
     let stop: Option<BusStop> = state.db.query(query).await?.take(0)?;
     Ok(Json(stop))
@@ -41,11 +41,13 @@ pub async fn get_handler(
 
 pub async fn create_handler(
     State(state): State<Arc<AppState>>,
-    Json(body): Json<BusStopCreateInfo>,
+    Json(BusStopCreateInfo { name }): Json<BusStopCreateInfo>,
 ) -> Result<impl IntoResponse, Error> {
     let query = format!(
-        "CREATE ONLY bus_stop SET name = '{}', created_at = time::now(), updated_at = time::now()",
-        body.name
+        "CREATE ONLY bus_stop
+        SET name = '{name}',
+            created_at = time::now(),
+            updated_at = time::now()"
     );
     let result: Option<RecordId> = state.db.query(query).await?.take(0)?;
     Ok(Json(result))
