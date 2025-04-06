@@ -32,3 +32,12 @@ pub struct BusRouteWithStops {
     pub updated_at: DateTime<Utc>,
     pub stops: Vec<StopRouteRelation>,
 }
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct BusVehicle {
+    pub id: Option<String>,
+    pub route_id: String,
+    pub next_stop_id: String,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+}
