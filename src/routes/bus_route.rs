@@ -93,10 +93,10 @@ pub async fn add_vehicle_handler(
     Path(route_id): Path<String>,
     Json(body): Json<BusRouteAddVehiclesInfo>,
 ) -> Result<impl IntoResponse, Error> {
-    let queries: Vec<_> = body.vehicle_ids.into_iter()
-        .map(|VehicleRouteRelationInfo {id}| format!(
-            "RELATE bus_route:{route_id} ->contain vehicle:{id}"))
+    let ids: Vec<_> = body.vehicle_ids.into_iter()
+        .map(|VehicleRouteRelationInfo {id}| format!("vehicle:{id}"))
         .collect();
-    state.db.query(queries.join(";")).await?;
+    let query = format!("RELATE bus_route:{route_id} ->contain [{}]", ids.join(","));
+    state.db.query(query).await?;
     Ok(Json(route_id))
 }

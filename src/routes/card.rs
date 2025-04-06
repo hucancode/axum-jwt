@@ -115,20 +115,16 @@ pub async fn create_pass_handler(
     State(state): State<Arc<AppState>>,
     Json(TravelPassCreateInfo { card_id, route_id, expiry_date }): Json<TravelPassCreateInfo>,
 ) -> Result<impl IntoResponse, Error> {
-    let mut queries = vec![format!(
+    let query = format!(
         "LET $pass = CREATE ONLY travel_pass
         SET route_id = '{route_id}',
             card_id = '{card_id}',
             expiry_date = '{expiry_date}',
             created_at = time::now(),
-            updated_at = time::now()"
-    )];
-
-    queries.push(format!(
-        "RELATE travel_card:{card_id} ->has_pass-> $pass"
-    ));
-
-    let result: Option<RecordId> = state.db.query(queries.join(";")).await?.take(0)?;
+            updated_at = time::now();
+        RELATE travel_card:{card_id} ->has_pass-> $pass"
+    );
+    let result: Option<RecordId> = state.db.query(query).await?.take(0)?;
     Ok(Json(result))
 }
 
@@ -140,7 +136,6 @@ pub async fn validate_card_at_stop_handler(
     let validation_query = format!(
         "LET $card = travel_card:{card_id};
          LET $stop = bus_stop:{stop_id};
-
          LET $has_valid_pass = (
             SELECT count() > 0 AS valid FROM (
                 SELECT * FROM $card->has_pass->travel_pass
@@ -153,7 +148,6 @@ pub async fn validate_card_at_stop_handler(
                 )
             )
          )[0].valid;
-
          RETURN $has_valid_pass;"
     );
 
