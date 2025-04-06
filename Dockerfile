@@ -7,7 +7,7 @@
 ################################################################################
 # Create a stage for building the application.
 
-ARG RUST_VERSION=1.83
+ARG RUST_VERSION=1.86
 ARG APP_NAME=axum-jwt
 FROM rust:${RUST_VERSION}-slim-bullseye AS build
 ARG APP_NAME

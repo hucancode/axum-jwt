@@ -1,5 +1,6 @@
 mod bus_route;
 mod bus_stop;
+mod vehicle;
 mod health;
 mod login;
 mod middlewares;
@@ -66,7 +67,7 @@ pub async fn make_app() -> Result<Router, Box<dyn Error>> {
         .route(
             "/api/bus-stops",
             post(bus_stop::create_handler)
-                .route_layer(middleware::from_fn_with_state(state.clone(), auth_guard)),
+            //.route_layer(middleware::from_fn_with_state(state.clone(), auth_guard)),
         )
         .route("/api/bus-routes", get(bus_route::get_all_handler))
         .route("/api/bus-routes/{id}", get(bus_route::get_handler))
@@ -75,9 +76,24 @@ pub async fn make_app() -> Result<Router, Box<dyn Error>> {
             post(bus_route::add_stop_handler),
         )
         .route(
+            "/api/bus-routes/{id}/add-vehicle/{stop_id}",
+            post(bus_route::add_vehicle_handler),
+        )
+        .route(
             "/api/bus-routes",
             post(bus_route::create_handler)
-                .route_layer(middleware::from_fn_with_state(state.clone(), auth_guard)),
+            //.route_layer(middleware::from_fn_with_state(state.clone(), auth_guard)),
+        )
+        .route("/api/vehicles", get(vehicle::get_all_handler))
+        .route("/api/vehicles/{id}", get(vehicle::get_handler))
+        .route(
+            "/api/vehicles",
+            post(vehicle::create_handler)
+            //.route_layer(middleware::from_fn_with_state(state.clone(), auth_guard)),
+        )
+        .route("/api/vehicles/{id}/location",
+            post(vehicle::update_location_handler)
+            //.route_layer(middleware::from_fn_with_state(state.clone(), auth_guard)),
         )
         .with_state(state)
         .layer(cors);

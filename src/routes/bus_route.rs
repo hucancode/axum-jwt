@@ -1,7 +1,7 @@
 use crate::{
     models::{
         bus::BusRouteWithStops,
-        dto::{bus_info::BusRouteAddStopsInfo, BusRouteCreateInfo},
+        dto::{bus_info::VehicleRouteRelationInfo, BusRouteAddStopsInfo, BusRouteAddVehiclesInfo, BusRouteCreateInfo, StopRouteRelationInfo},
         BusRoute, Error,
     },
     AppState,
@@ -53,11 +53,11 @@ pub async fn create_handler(
         "let $route = CREATE ONLY bus_route SET name = '{}', created_at = time::now(), updated_at = time::now()",
         body.name
     );
-    let relations: Vec<_> = iter::once(create_query).chain(body.stops.iter().enumerate().map(|(i, name)| {
-        format!(
+    let relations: Vec<_> = iter::once(create_query)
+        .chain(body.stops.iter().enumerate().map(|(i, name)| format!(
             "RELATE ONLY $route ->contain-> (CREATE ONLY bus_stop SET name = '{name}', update_at = time::now(), created_at = time::now()) SET order = {i}"
-        )
-    })).collect();
+        )))
+        .collect();
     state.db.query(relations.join(";")).await?;
     Ok(Json(body.name))
 }
@@ -67,12 +67,21 @@ pub async fn add_stop_handler(
     Path(route_id): Path<String>,
     Json(body): Json<BusRouteAddStopsInfo>,
 ) -> Result<impl IntoResponse, Error> {
-    for rel in body.stop_ids {
-        let query = format!(
-            "RELATE bus_route:{} ->contain bus_stop:{} SET order = {};",
-            route_id, rel.id, rel.order
-        );
-        state.db.query(query).await?;
-    }
+    let queries: Vec<_> = body.stop_ids.into_iter()
+        .map(|StopRouteRelationInfo {id, order}| format!("RELATE bus_route:{route_id} ->contain bus_stop:{id} SET order = {order};"))
+        .collect();
+    state.db.query(queries.join(";")).await?;
+    Ok(Json(route_id))
+}
+
+pub async fn add_vehicle_handler(
+    State(state): State<Arc<AppState>>,
+    Path(route_id): Path<String>,
+    Json(body): Json<BusRouteAddVehiclesInfo>,
+) -> Result<impl IntoResponse, Error> {
+    let queries: Vec<_> = body.vehicle_ids.into_iter()
+        .map(|VehicleRouteRelationInfo {id}| format!("RELATE bus_route:{route_id} ->contain vehicle:{id}"))
+        .collect();
+    state.db.query(queries.join(";")).await?;
     Ok(Json(route_id))
 }

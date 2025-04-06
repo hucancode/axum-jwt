@@ -34,10 +34,12 @@ pub struct BusRouteWithStops {
 }
 
 #[derive(Debug, Deserialize, Serialize)]
-pub struct BusVehicle {
+pub struct Vehicle {
     pub id: Option<String>,
+    pub longitute: Option<f64>,
+    pub latitude: Option<f64>,
     pub route_id: String,
-    pub next_stop_id: String,
+    pub next_stop_id: Option<String>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }

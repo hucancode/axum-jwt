@@ -25,7 +25,7 @@ pub struct BusRouteAddStopsInfo {
 
 #[derive(Debug, Deserialize)]
 pub struct VehicleCreateInfo {
-    pub name: String,
+    pub plate_number: String,
     pub route: Option<String>,
 }
 
@@ -33,4 +33,15 @@ pub struct VehicleCreateInfo {
 pub struct VehicleUpdateLocationInfo {
     pub latitude: f64,
     pub longitude: f64,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct VehicleRouteRelationInfo {
+    pub id: String,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct BusRouteAddVehiclesInfo {
+    pub id: String,
+    pub vehicle_ids: Vec<VehicleRouteRelationInfo>,
 }
